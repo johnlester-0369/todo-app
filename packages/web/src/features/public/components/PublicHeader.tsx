@@ -10,15 +10,13 @@ interface NavItem {
   label: string
   href: string
   icon?: React.ReactNode
-  preload?: 'home' | 'notFound' | 'docsIndex' | 'docsUseState'
   children?: NavItem[]
 }
 
 const navItems: NavItem[] = [
   {
     label: 'Home',
-    href: '/',
-    preload: 'home',
+    href: '/'
   },
   {
     label: 'About',
