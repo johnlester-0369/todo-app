@@ -1,0 +1,48 @@
+/* Dark Theme Variables */
+.dark {
+  /* Core colors (RGB triplets for Tailwind) */
+  --color-primary: 59 130 246;
+  --color-on-primary: 255 255 255;
+  /* Blue-tinted dark backgrounds with correct hierarchy */
+  --color-bg: 8 12 16;
+  --color-surface-1: 24 34 48;
+  --color-surface-2: 30 40 52;
+  --color-surface-hover-1: 35 47 62;
+  --color-surface-hover-2: 42 55 71;
+  /* Text colors */
+  --color-foreground: 229 236 243;
+  --color-headline: 248 250 252;
+  --color-muted: 148 163 184;
+  /* UI elements */
+  --color-border: 70 85 105;
+  --color-divider: 24 34 48;
+  /* Feedback colors */
+  --color-success: 34 197 94;
+  --color-warning: 251 191 36;
+  --color-error: 239 68 68;
+  --color-info: 96 165 250;
+}
+
+/* -----------------------------------------------------------
+   Dark Theme Custom Scrollbar
+   ----------------------------------------------------------- */
+.dark .scrollbar {
+  scrollbar-color: rgb(var(--color-muted) / 0.3) transparent;
+}
+
+.dark .scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-muted) / 0.3);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.dark .scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-muted) / 0.4);
+  background-clip: padding-box;
+}
+
+.dark .scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-muted) / 0.5);
+  background-clip: padding-box;
+}
