@@ -11,6 +11,7 @@ export interface ButtonProps
   isLoading?: boolean
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
+  fullWidth?: boolean
 }
 
 const base =
@@ -70,6 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       isLoading = false,
       leftIcon,
       rightIcon,
+      fullWidth = false,
       children,
       className,
       disabled,
@@ -82,6 +84,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       base,
       variantClasses[variant],
       variant !== 'unstyled' && sizeClasses[size],
+      fullWidth && 'w-full',
       className,
     )
 
