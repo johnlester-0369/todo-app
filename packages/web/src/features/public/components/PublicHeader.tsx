@@ -1,8 +1,10 @@
+
 import React, { useEffect, useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, LogIn, UserPlus } from 'lucide-react'
 import ThemeToggle from '@/components/common/ThemeToggle'
 import { BrandLogo, BrandName } from '@/components/common/Brand'
 import IconButton from '@/components/ui/IconButton'
+import Button from '@/components/ui/Button'
 
 interface NavItem {
   label: string
@@ -86,9 +88,34 @@ const Header: React.FC = () => {
             </nav>
           </div>
 
-          {/* Right side: Theme Toggle */}
-          <div className="flex items-center gap-4">
+          {/* Right side: Auth Buttons + Theme Toggle + Mobile Menu */}
+          <div className="flex items-center gap-3">
             <ThemeToggle />
+            
+            {/* Desktop Auth Buttons with visual separator */}
+            <div className="hidden md:flex items-center gap-3">
+              {/* Visual separator for better spacing */}
+              <div className="h-8 w-px bg-border" />
+              
+              <Button
+                variant="secondary"
+                leftIcon={<LogIn className="h-4 w-4" />}
+                onClick={() => {
+                  window.location.href = '/login'
+                }}
+              >
+                Login
+              </Button>
+              <Button
+                variant="primary"
+                leftIcon={<UserPlus className="h-4 w-4" />}
+                onClick={() => {
+                  window.location.href = '/signup'
+                }}
+              >
+                Sign Up
+              </Button>
+            </div>
 
             {/* Mobile Menu Button */}
             <IconButton
@@ -127,6 +154,34 @@ const Header: React.FC = () => {
                   </div>
                 )
               })}
+
+              {/* Mobile Auth Buttons */}
+              <div className="pt-4 mt-4 border-t border-divider space-y-2">
+                <Button
+                  variant="ghost"
+                  size="md"
+                  fullWidth
+                  leftIcon={<LogIn className="h-4 w-4" />}
+                  onClick={() => {
+                    window.location.href = '/login'
+                    setIsMobileMenuOpen(false)
+                  }}
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="primary"
+                  size="md"
+                  fullWidth
+                  leftIcon={<UserPlus className="h-4 w-4" />}
+                  onClick={() => {
+                    window.location.href = '/signup'
+                    setIsMobileMenuOpen(false)
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </div>
             </div>
           </nav>
         )}
