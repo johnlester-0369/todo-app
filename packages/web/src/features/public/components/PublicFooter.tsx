@@ -10,9 +10,7 @@ const Footer: React.FC = () => {
           <div className="flex items-center gap-2">
             <BrandLogo size="sm" />
             <BrandName />
-            <span className="text-muted">
-              © 2025
-            </span>
+            <span className="text-muted">© 2025</span>
           </div>
 
           {/* Right side */}

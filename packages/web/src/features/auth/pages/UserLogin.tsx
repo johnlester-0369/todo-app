@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Card from '@/components/ui/Card'
@@ -179,7 +178,9 @@ const UserLogin: React.FC = () => {
                 variant="primary"
                 size="lg"
                 isLoading={isLoading}
-                leftIcon={!isLoading ? <LogIn className="h-5 w-5" /> : undefined}
+                leftIcon={
+                  !isLoading ? <LogIn className="h-5 w-5" /> : undefined
+                }
                 className="w-full"
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}

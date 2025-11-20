@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react'
 import { Menu, X, LogIn, UserPlus } from 'lucide-react'
 import ThemeToggle from '@/components/common/ThemeToggle'
@@ -16,7 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     label: 'Home',
-    href: '/'
+    href: '/',
   },
   {
     label: 'About',
@@ -89,12 +88,12 @@ const Header: React.FC = () => {
           {/* Right side: Auth Buttons + Theme Toggle + Mobile Menu */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            
+
             {/* Desktop Auth Buttons with visual separator */}
             <div className="hidden md:flex items-center gap-3">
               {/* Visual separator for better spacing */}
               <div className="h-8 w-px bg-border" />
-              
+
               <Button
                 variant="secondary"
                 leftIcon={<LogIn className="h-4 w-4" />}
@@ -156,7 +155,7 @@ const Header: React.FC = () => {
               {/* Mobile Auth Buttons */}
               <div className="pt-4 mt-4 border-t border-divider space-y-2">
                 <Button
-                  variant="ghost"
+                  variant="secondary"
                   size="md"
                   fullWidth
                   leftIcon={<LogIn className="h-4 w-4" />}
