@@ -1,21 +1,29 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { authUserClient } from '@/lib/auth-client'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import Alert from '@/components/ui/Alert'
 import { BrandLogo, BrandName } from '@/components/common/Brand'
-import { Mail, Lock, User, UserPlus } from 'lucide-react'
+import { Mail, Lock, User, UserPlus, Eye, EyeOff } from 'lucide-react'
+import {
+  isValidEmail,
+  isValidPassword,
+  isValidName,
+  doValuesMatch,
+  isEmpty,
+} from '@/utils/validation.util'
 
 interface SignUpFormData {
-  username: string
+  name: string
   email: string
   password: string
   confirmPassword: string
 }
 
 interface FormErrors {
-  username?: string
+  name?: string
   email?: string
   password?: string
   confirmPassword?: string
@@ -24,7 +32,7 @@ interface FormErrors {
 const UserSignUp: React.FC = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState<SignUpFormData>({
-    username: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -32,51 +40,87 @@ const UserSignUp: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const [signUpError, setSignUpError] = useState<string>('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
+  const validateName = (value: string): boolean => {
+    if (isEmpty(value)) {
+      setErrors((prev) => ({ ...prev, name: 'Name is required' }))
+      return false
+    }
+    if (!isValidName(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        name: 'Name must be at least 2 characters and contain only letters',
+      }))
+      return false
+    }
+    setErrors((prev) => ({ ...prev, name: undefined }))
+    return true
   }
 
-  const validateUsername = (username: string): boolean => {
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/
-    return usernameRegex.test(username)
+  const validateEmail = (value: string): boolean => {
+    if (isEmpty(value)) {
+      setErrors((prev) => ({ ...prev, email: 'Email is required' }))
+      return false
+    }
+    if (!isValidEmail(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        email: 'Please enter a valid email address',
+      }))
+      return false
+    }
+    setErrors((prev) => ({ ...prev, email: undefined }))
+    return true
   }
 
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 8
+  const validatePasswordField = (value: string): boolean => {
+    if (isEmpty(value)) {
+      setErrors((prev) => ({ ...prev, password: 'Password is required' }))
+      return false
+    }
+    if (!isValidPassword(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        password: 'Password must be at least 6 characters',
+      }))
+      return false
+    }
+    setErrors((prev) => ({ ...prev, password: undefined }))
+    return true
+  }
+
+  const validateConfirmPassword = (value: string): boolean => {
+    if (isEmpty(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: 'Please confirm your password',
+      }))
+      return false
+    }
+    if (!doValuesMatch(formData.password, value)) {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: 'Passwords do not match',
+      }))
+      return false
+    }
+    setErrors((prev) => ({ ...prev, confirmPassword: undefined }))
+    return true
   }
 
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
+    const isNameValid = validateName(formData.name)
+    const isEmailValid = validateEmail(formData.email)
+    const isPasswordValid = validatePasswordField(formData.password)
+    const isConfirmPasswordValid = validateConfirmPassword(
+      formData.confirmPassword,
+    )
 
-    if (!formData.username) {
-      newErrors.username = 'Username is required'
-    } else if (!validateUsername(formData.username)) {
-      newErrors.username =
-        'Username must be 3-20 characters and contain only letters, numbers, and underscores'
-    }
-
-    if (!formData.email) {
-      newErrors.email = 'Email is required'
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address'
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required'
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must be at least 8 characters'
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password'
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return (
+      isNameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid
+    )
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +130,7 @@ const UserSignUp: React.FC = () => {
       [name]: value,
     }))
 
+    // Clear field error when user starts typing
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({
         ...prev,
@@ -93,6 +138,7 @@ const UserSignUp: React.FC = () => {
       }))
     }
 
+    // Clear general signup error
     if (signUpError) {
       setSignUpError('')
     }
@@ -109,15 +155,37 @@ const UserSignUp: React.FC = () => {
     setIsLoading(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const { data, error } = await authUserClient.signUp.email(
+        {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        },
+        {
+          onRequest: () => {
+            console.log('🔄 Sign up request started')
+          },
+          onSuccess: () => {
+            console.log('✅ Sign up successful')
+          },
+          onError: (ctx) => {
+            console.error('❌ Sign up failed:', ctx.error)
+          },
+        },
+      )
 
-      console.log('Sign up attempt with:', {
-        username: formData.username,
-        email: formData.email,
-        password: '***hidden***',
-      })
+      if (error) {
+        throw new Error(error.message || 'Sign up failed')
+      }
 
-      navigate('/login')
+      if (data) {
+        // Redirect to login page after successful signup
+        navigate('/login', {
+          state: {
+            message: 'Account created successfully! Please sign in.',
+          },
+        })
+      }
     } catch (error) {
       setSignUpError(
         error instanceof Error
@@ -143,7 +211,7 @@ const UserSignUp: React.FC = () => {
           <h1 className="text-3xl font-bold text-headline mb-2">
             Create Account
           </h1>
-          <p className="text-text">Sign up to get started with TodoApp</p>
+          <p className="text-text">Sign up to get started</p>
         </div>
 
         <Card.Root>
@@ -158,61 +226,107 @@ const UserSignUp: React.FC = () => {
                 />
               )}
 
-              <Input
-                type="text"
-                name="username"
-                label="Username"
-                placeholder="johndoe"
-                value={formData.username}
-                onChange={handleInputChange}
-                error={errors.username}
-                leftIcon={<User className="h-5 w-5" />}
-                disabled={isLoading}
-                autoComplete="username"
-                required
-              />
+              <div className="grid gap-1">
+                <Input
+                  type="text"
+                  name="name"
+                  label="Full Name"
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  onBlur={(e) => validateName(e.target.value)}
+                  error={errors.name}
+                  leftIcon={<User className="h-5 w-5" />}
+                  disabled={isLoading}
+                  autoComplete="name"
+                  required
+                />
+              </div>
 
-              <Input
-                type="email"
-                name="email"
-                label="Email Address"
-                placeholder="you@example.com"
-                value={formData.email}
-                onChange={handleInputChange}
-                error={errors.email}
-                leftIcon={<Mail className="h-5 w-5" />}
-                disabled={isLoading}
-                autoComplete="email"
-                required
-              />
+              <div className="grid gap-1">
+                <Input
+                  type="email"
+                  name="email"
+                  label="Email Address"
+                  placeholder="you@example.com"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  onBlur={(e) => validateEmail(e.target.value)}
+                  error={errors.email}
+                  leftIcon={<Mail className="h-5 w-5" />}
+                  disabled={isLoading}
+                  autoComplete="email"
+                  required
+                />
+              </div>
 
-              <Input
-                type="password"
-                name="password"
-                label="Password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleInputChange}
-                error={errors.password}
-                leftIcon={<Lock className="h-5 w-5" />}
-                disabled={isLoading}
-                autoComplete="new-password"
-                required
-              />
+              <div className="grid gap-1">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  onBlur={(e) => validatePasswordField(e.target.value)}
+                  error={errors.password}
+                  leftIcon={<Lock className="h-5 w-5" />}
+                  rightIcon={
+                    showPassword ? (
+                      <EyeOff
+                        className="h-5 w-5 cursor-pointer"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => !isLoading && setShowPassword(false)}
+                      />
+                    ) : (
+                      <Eye
+                        className="h-5 w-5 cursor-pointer"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => !isLoading && setShowPassword(true)}
+                      />
+                    )
+                  }
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
 
-              <Input
-                type="password"
-                name="confirmPassword"
-                label="Confirm Password"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                error={errors.confirmPassword}
-                leftIcon={<Lock className="h-5 w-5" />}
-                disabled={isLoading}
-                autoComplete="new-password"
-                required
-              />
+              <div className="grid gap-1">
+                <Input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  onBlur={(e) => validateConfirmPassword(e.target.value)}
+                  error={errors.confirmPassword}
+                  leftIcon={<Lock className="h-5 w-5" />}
+                  rightIcon={
+                    showConfirmPassword ? (
+                      <EyeOff
+                        className="h-5 w-5 cursor-pointer"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() =>
+                          !isLoading && setShowConfirmPassword(false)
+                        }
+                      />
+                    ) : (
+                      <Eye
+                        className="h-5 w-5 cursor-pointer"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() =>
+                          !isLoading && setShowConfirmPassword(true)
+                        }
+                      />
+                    )
+                  }
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
 
               <Button
                 type="submit"

@@ -1,103 +1,114 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useUserAuth } from '@/contexts/UserAuthContext'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import Alert from '@/components/ui/Alert'
 import { BrandLogo, BrandName } from '@/components/common/Brand'
-import { Mail, Lock, LogIn } from 'lucide-react'
+import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react'
+import { isValidEmail, isEmpty } from '@/utils/validation.util'
 
-interface LoginFormData {
-  email: string
-  password: string
-}
-
-interface FormErrors {
-  email?: string
-  password?: string
+interface LocationState {
+  from?: {
+    pathname: string
+  }
 }
 
 const UserLogin: React.FC = () => {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
-    password: '',
-  })
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [isLoading, setIsLoading] = useState(false)
+  const location = useLocation()
+  const { isAuthenticated, isLoading, login } = useUserAuth()
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [loginError, setLoginError] = useState<string>('')
 
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
+  // Field-level errors
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+
+  // Get the page they were trying to access
+  const state = location.state as LocationState | null
+  const from = state?.from?.pathname || '/tasks'
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, isLoading, navigate, from])
+
+  const validateEmail = (value: string): boolean => {
+    if (isEmpty(value)) {
+      setEmailError('Email is required')
+      return false
+    }
+    if (!isValidEmail(value)) {
+      setEmailError('Please enter a valid email address')
+      return false
+    }
+    setEmailError('')
+    return true
   }
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
-
-    if (!formData.email) {
-      newErrors.email = 'Email is required'
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address'
+  const validatePasswordField = (value: string): boolean => {
+    if (isEmpty(value)) {
+      setPasswordError('Password is required')
+      return false
     }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required'
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: undefined,
-      }))
-    }
-
-    if (loginError) {
-      setLoginError('')
-    }
+    setPasswordError('')
+    return true
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoginError('')
 
-    if (!validateForm()) {
+    // Validate all fields
+    const isEmailValid = validateEmail(email)
+    const isPasswordValid = validatePasswordField(password)
+
+    if (!isEmailValid || !isPasswordValid) {
       return
     }
 
-    setIsLoading(true)
+    setLoading(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      console.log('Login attempt with:', {
-        email: formData.email,
-        password: '***hidden***',
-      })
-
-      navigate('/')
-    } catch (error) {
-      setLoginError(
-        error instanceof Error
-          ? error.message
-          : 'An unexpected error occurred. Please try again.',
-      )
+      await login(email, password, rememberMe)
+      // Navigate to the page they were trying to access or tasks
+      navigate(from, { replace: true })
+    } catch (err) {
+      console.error('Login failed:', err)
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'Invalid credentials. Please try again.'
+      setLoginError(errorMessage)
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
+  }
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-text">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render form if already authenticated (will redirect)
+  if (isAuthenticated) {
+    return null
   }
 
   return (
@@ -129,39 +140,69 @@ const UserLogin: React.FC = () => {
                 />
               )}
 
-              <Input
-                type="email"
-                name="email"
-                label="Email Address"
-                placeholder="you@example.com"
-                value={formData.email}
-                onChange={handleInputChange}
-                error={errors.email}
-                leftIcon={<Mail className="h-5 w-5" />}
-                disabled={isLoading}
-                autoComplete="email"
-                required
-              />
+              <div className="grid gap-1">
+                <Input
+                  type="email"
+                  name="email"
+                  label="Email Address"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    if (emailError) validateEmail(e.target.value)
+                  }}
+                  onBlur={(e) => validateEmail(e.target.value)}
+                  error={emailError}
+                  leftIcon={<Mail className="h-5 w-5" />}
+                  disabled={loading}
+                  autoComplete="email"
+                  required
+                />
+              </div>
 
-              <Input
-                type="password"
-                name="password"
-                label="Password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleInputChange}
-                error={errors.password}
-                leftIcon={<Lock className="h-5 w-5" />}
-                disabled={isLoading}
-                autoComplete="current-password"
-                required
-              />
+              <div className="grid gap-1">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    if (passwordError) validatePasswordField(e.target.value)
+                  }}
+                  onBlur={(e) => validatePasswordField(e.target.value)}
+                  error={passwordError}
+                  leftIcon={<Lock className="h-5 w-5" />}
+                  rightIcon={
+                    showPassword ? (
+                      <EyeOff
+                        className="h-5 w-5 cursor-pointer"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => !loading && setShowPassword(false)}
+                      />
+                    ) : (
+                      <Eye
+                        className="h-5 w-5 cursor-pointer"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => !loading && setShowPassword(true)}
+                      />
+                    )
+                  }
+                  disabled={loading}
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
 
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-surface-2"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    disabled={loading}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-surface-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition-colors"
                   />
                   <span className="text-text">Remember me</span>
                 </label>
@@ -177,13 +218,11 @@ const UserLogin: React.FC = () => {
                 type="submit"
                 variant="primary"
                 size="lg"
-                isLoading={isLoading}
-                leftIcon={
-                  !isLoading ? <LogIn className="h-5 w-5" /> : undefined
-                }
+                isLoading={loading}
+                leftIcon={!loading ? <LogIn className="h-5 w-5" /> : undefined}
                 className="w-full"
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {loading ? 'Signing in...' : 'Sign In'}
               </Button>
             </div>
           </form>
