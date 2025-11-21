@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import app from '@/app.js';
 import { connectDatabase } from '@/lib/db.js';
+import { taskRepo } from '@/repos/task.repo.js';
 import { logger } from '@/utils/logger.js';
 
 const PORT = process.env.PORT || 3000;
@@ -45,6 +46,11 @@ const startServer = async () => {
     logger.info('MongoDB connected successfully', {
       database: process.env.MONGODB_DB_NAME || 'default',
     });
+
+    // Create database indexes for better performance
+    logger.info('Creating database indexes...');
+    await taskRepo.createIndexes();
+    logger.info('Database indexes created successfully');
 
     // Start Express server
     app.listen(PORT, () => {
