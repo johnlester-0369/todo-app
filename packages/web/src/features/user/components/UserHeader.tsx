@@ -1,7 +1,21 @@
 import React from 'react'
 import { BrandLogo, BrandName } from '@/components/common/Brand'
+import AvatarMenu from '@/components/common/AvatarMenu'
 
 const Header: React.FC = () => {
+  // Hardcoded user data (static for now)
+  const currentUser = {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    image: undefined, // Will show initials "JD"
+  }
+
+  // Mock logout handler (static for now)
+  const handleLogout = async () => {
+    console.log('Logout clicked - implement actual logout logic later')
+    // TODO: Implement actual logout logic when authentication is added
+  }
+
   return (
     <header className="sticky top-0 bg-surface-1 z-50 w-full shadow-soft">
       <div className="w-full px-4 md:px-8 lg:px-12 xl:px-32">
@@ -13,6 +27,16 @@ const Header: React.FC = () => {
               <BrandLogo />
               <BrandName />
             </div>
+          </div>
+
+          {/* Right side: Avatar Menu */}
+          <div className="flex items-center">
+            <AvatarMenu
+              user={currentUser}
+              onLogout={handleLogout}
+              profilePath="/profile"
+              size="md"
+            />
           </div>
         </div>
       </div>

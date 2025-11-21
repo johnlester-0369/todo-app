@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { User, LogOut, Moon } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { LogOut, Moon } from 'lucide-react'
 import { useTheme } from '@/contexts/ThemeContext'
 import Toggle from '@/components/ui/Toggle'
 import {
@@ -24,10 +23,8 @@ interface AvatarMenuProps {
 const AvatarMenu: React.FC<AvatarMenuProps> = ({
   user,
   onLogout,
-  profilePath,
   size = 'md',
 }) => {
-  const navigate = useNavigate()
   const { isDark, setTheme } = useTheme()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
@@ -41,11 +38,6 @@ const AvatarMenu: React.FC<AvatarMenuProps> = ({
   }
 
   const currentSize = sizeConfig[size]
-
-  // Reset image error when user changes
-  useEffect(() => {
-    setImageError(false)
-  }, [user?.image])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -80,11 +72,6 @@ const AvatarMenu: React.FC<AvatarMenuProps> = ({
     } catch (error) {
       console.error('Logout failed:', error)
     }
-  }
-
-  const handleProfileClick = () => {
-    navigate(profilePath)
-    setIsDropdownOpen(false)
   }
 
   // Handle image load error
@@ -181,15 +168,6 @@ const AvatarMenu: React.FC<AvatarMenuProps> = ({
 
           {/* Menu Items */}
           <div className="py-2">
-            {/* Profile */}
-            <button
-              onClick={handleProfileClick}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text hover:bg-surface-hover-2 transition-colors duration-200"
-            >
-              <User className="h-4 w-4 text-muted flex-shrink-0" />
-              <span>My Profile</span>
-            </button>
-
             {/* Dark Mode Toggle Section */}
             <div className="px-4 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-3">

@@ -27,11 +27,7 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: withSuspense(<HomePage />),
-      },
-      {
-        path: '*',
-        element: withSuspense(<NotFound />),
-      },
+      }
     ],
   },
   {
