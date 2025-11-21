@@ -12,6 +12,9 @@ dist
 *.local
 .env
 
+# Winston log files
+logs/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

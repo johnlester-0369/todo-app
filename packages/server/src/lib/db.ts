@@ -1,4 +1,5 @@
 import { MongoClient, Db } from 'mongodb';
+import { logger } from '@/utils/logger.js';
 
 const uri = process.env.MONGODB_URI;
 if (!uri) {
@@ -36,12 +37,38 @@ export const db: Db = mongoClient.db(dbName);
  * The MongoDB driver's connect() method is idempotent and safe to call multiple times.
  */
 export const connectDatabase = async (): Promise<void> => {
-  await mongoClient.connect();
+  try {
+    logger.debug('Attempting to connect to MongoDB...', {
+      database: dbName || 'default',
+    });
+
+    await mongoClient.connect();
+
+    logger.info('MongoDB connection established', {
+      database: dbName || 'default',
+      host: mongoClient.options.hosts[0],
+    });
+  } catch (error) {
+    logger.error('MongoDB connection failed', {
+      error: error instanceof Error ? error.message : String(error),
+      database: dbName || 'default',
+    });
+    throw error;
+  }
 };
 
 /**
  * Close the underlying client connection.
  */
 export const closeDatabase = async (): Promise<void> => {
-  await mongoClient.close();
+  try {
+    logger.info('Closing MongoDB connection...');
+    await mongoClient.close();
+    logger.info('MongoDB connection closed successfully');
+  } catch (error) {
+    logger.error('Error closing MongoDB connection', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
 };
