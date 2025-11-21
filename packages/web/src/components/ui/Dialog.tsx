@@ -142,17 +142,18 @@ const DialogTrigger: React.FC<DialogTriggerProps> = ({
 
   if (asChild) {
     const child = React.Children.only(children) as React.ReactElement<
-      React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> }
+      React.HTMLAttributes<HTMLElement>
     >
 
+    // When using asChild, clone the child with onClick handler
+    // but don't forward the ref - let the child manage its own refs
     return React.cloneElement(child, {
       ...child.props,
-      ref: triggerRef as React.Ref<HTMLElement>,
       onClick: (e: React.MouseEvent<HTMLElement>) => {
         child.props.onClick?.(e)
         handleClick()
       },
-    } as React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> })
+    } as React.HTMLAttributes<HTMLElement>)
   }
 
   return (

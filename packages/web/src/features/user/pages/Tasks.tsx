@@ -16,18 +16,13 @@ import {
   ListTodo,
   Clock,
 } from 'lucide-react'
+import { useTasks } from '@/features/user/hooks/useTasks'
+import { useTaskMutations } from '@/features/user/hooks/useTaskMutations'
+import type { Task } from '@/features/user/services/task.service'
 
 // ============================================================================
 // Types
 // ============================================================================
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  completed: boolean
-  createdAt: Date
-}
 
 type TaskFilter = 'all' | 'active' | 'completed'
 
@@ -42,40 +37,11 @@ interface TaskFormErrors {
 }
 
 // ============================================================================
-// Initial Mock Data
-// ============================================================================
-
-const initialTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Complete project documentation',
-    description: 'Write comprehensive documentation for the new task feature',
-    completed: false,
-    createdAt: new Date('2025-01-15'),
-  },
-  {
-    id: '2',
-    title: 'Review pull requests',
-    description: 'Review and merge pending PRs from team members',
-    completed: true,
-    createdAt: new Date('2025-01-14'),
-  },
-  {
-    id: '3',
-    title: 'Update dependencies',
-    description: 'Update project dependencies to latest stable versions',
-    completed: false,
-    createdAt: new Date('2025-01-13'),
-  },
-]
-
-// ============================================================================
 // Main Component
 // ============================================================================
 
 const Tasks: React.FC = () => {
   // State Management
-  const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [filter, setFilter] = useState<TaskFilter>('all')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -87,22 +53,24 @@ const Tasks: React.FC = () => {
   })
   const [formErrors, setFormErrors] = useState<TaskFormErrors>({})
   const [successMessage, setSuccessMessage] = useState<string>('')
+  const [errorMessage, setErrorMessage] = useState<string>('')
 
-  // ============================================================================
-  // Computed Values
-  // ============================================================================
-
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === 'active') return !task.completed
-    if (filter === 'completed') return task.completed
-    return true
+  // Hooks
+  const { tasks, stats, loading, error, refetch, toggleTask } = useTasks({
+    status: filter,
   })
 
-  const taskStats = {
-    total: tasks.length,
-    active: tasks.filter((t) => !t.completed).length,
-    completed: tasks.filter((t) => t.completed).length,
-  }
+  const { createTask, updateTask, deleteTask, isSubmitting } = useTaskMutations({
+    onSuccess: (message) => {
+      setSuccessMessage(message)
+      setTimeout(() => setSuccessMessage(''), 3000)
+      refetch()
+    },
+    onError: (message) => {
+      setErrorMessage(message)
+      setTimeout(() => setErrorMessage(''), 5000)
+    },
+  })
 
   // ============================================================================
   // Validation
@@ -163,62 +131,42 @@ const Tasks: React.FC = () => {
   // CRUD Operations
   // ============================================================================
 
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (!validateForm()) return
 
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      completed: false,
-      createdAt: new Date(),
-    }
+    const newTask = await createTask(formData)
 
-    setTasks((prev) => [newTask, ...prev])
-    setSuccessMessage('Task created successfully!')
-    setTimeout(() => setSuccessMessage(''), 3000)
-    setIsAddDialogOpen(false)
-    resetForm()
+    if (newTask) {
+      setIsAddDialogOpen(false)
+      resetForm()
+    }
   }
 
-  const handleEditTask = () => {
+  const handleEditTask = async () => {
     if (!selectedTask || !validateForm()) return
 
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === selectedTask.id
-          ? {
-              ...task,
-              title: formData.title.trim(),
-              description: formData.description.trim(),
-            }
-          : task,
-      ),
-    )
+    const updated = await updateTask(selectedTask.id, formData)
 
-    setSuccessMessage('Task updated successfully!')
-    setTimeout(() => setSuccessMessage(''), 3000)
-    setIsEditDialogOpen(false)
-    setSelectedTask(null)
-    resetForm()
+    if (updated) {
+      setIsEditDialogOpen(false)
+      setSelectedTask(null)
+      resetForm()
+    }
   }
 
-  const handleDeleteTask = () => {
+  const handleDeleteTask = async () => {
     if (!selectedTask) return
 
-    setTasks((prev) => prev.filter((task) => task.id !== selectedTask.id))
-    setSuccessMessage('Task deleted successfully!')
-    setTimeout(() => setSuccessMessage(''), 3000)
-    setIsDeleteDialogOpen(false)
-    setSelectedTask(null)
+    const deleted = await deleteTask(selectedTask.id)
+
+    if (deleted) {
+      setIsDeleteDialogOpen(false)
+      setSelectedTask(null)
+    }
   }
 
-  const handleToggleComplete = (taskId: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task,
-      ),
-    )
+  const handleToggleComplete = async (taskId: string) => {
+    await toggleTask(taskId)
   }
 
   // ============================================================================
@@ -256,7 +204,8 @@ const Tasks: React.FC = () => {
   // Render Helpers
   // ============================================================================
 
-  const formatDate = (date: Date): string => {
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString)
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
@@ -265,6 +214,38 @@ const Tasks: React.FC = () => {
   }
 
   const renderTaskList = (tasks: Task[]) => {
+    if (loading) {
+      return (
+        <Card.Root padding="lg">
+          <div className="text-center py-8">
+            <div className="flex justify-center mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+            <p className="text-text">Loading tasks...</p>
+          </div>
+        </Card.Root>
+      )
+    }
+
+    if (error) {
+      return (
+        <Card.Root padding="lg">
+          <div className="text-center py-8">
+            <div className="flex justify-center mb-4">
+              <Circle className="h-16 w-16 text-error" />
+            </div>
+            <h3 className="text-lg font-semibold text-headline mb-2">
+              Error Loading Tasks
+            </h3>
+            <p className="text-text mb-4">{error}</p>
+            <Button variant="primary" onClick={refetch}>
+              Retry
+            </Button>
+          </div>
+        </Card.Root>
+      )
+    }
+
     if (tasks.length === 0) {
       return (
         <Card.Root padding="lg">
@@ -394,6 +375,15 @@ const Tasks: React.FC = () => {
           />
         )}
 
+        {/* Error Message */}
+        {errorMessage && (
+          <Alert
+            variant="error"
+            title={errorMessage}
+            onClose={() => setErrorMessage('')}
+          />
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Total Tasks Card */}
@@ -401,7 +391,7 @@ const Tasks: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold text-headline">
-                  {taskStats.total}
+                  {stats.total}
                 </p>
                 <p className="text-sm text-muted mt-1">Total Tasks</p>
               </div>
@@ -418,7 +408,7 @@ const Tasks: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold text-primary">
-                  {taskStats.active}
+                  {stats.active}
                 </p>
                 <p className="text-sm text-muted mt-1">Active Tasks</p>
               </div>
@@ -435,7 +425,7 @@ const Tasks: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold text-success">
-                  {taskStats.completed}
+                  {stats.completed}
                 </p>
                 <p className="text-sm text-muted mt-1">Completed</p>
               </div>
@@ -457,15 +447,11 @@ const Tasks: React.FC = () => {
           </Tabs.List>
 
           <Tabs.Panels>
-            <Tabs.Panel value="all">{renderTaskList(filteredTasks)}</Tabs.Panel>
+            <Tabs.Panel value="all">{renderTaskList(tasks)}</Tabs.Panel>
 
-            <Tabs.Panel value="active">
-              {renderTaskList(filteredTasks)}
-            </Tabs.Panel>
+            <Tabs.Panel value="active">{renderTaskList(tasks)}</Tabs.Panel>
 
-            <Tabs.Panel value="completed">
-              {renderTaskList(filteredTasks)}
-            </Tabs.Panel>
+            <Tabs.Panel value="completed">{renderTaskList(tasks)}</Tabs.Panel>
           </Tabs.Panels>
         </Tabs.Root>
 
@@ -506,11 +492,16 @@ const Tasks: React.FC = () => {
                     setIsAddDialogOpen(false)
                     resetForm()
                   }}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={handleAddTask}>
-                  Create Task
+                <Button
+                  variant="primary"
+                  onClick={handleAddTask}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Task'}
                 </Button>
               </Dialog.Footer>
             </Dialog.Content>
@@ -555,11 +546,16 @@ const Tasks: React.FC = () => {
                     setSelectedTask(null)
                     resetForm()
                   }}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={handleEditTask}>
-                  Save Changes
+                <Button
+                  variant="primary"
+                  onClick={handleEditTask}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>
               </Dialog.Footer>
             </Dialog.Content>
@@ -591,11 +587,16 @@ const Tasks: React.FC = () => {
                     setIsDeleteDialogOpen(false)
                     setSelectedTask(null)
                   }}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button variant="danger" onClick={handleDeleteTask}>
-                  Delete Task
+                <Button
+                  variant="danger"
+                  onClick={handleDeleteTask}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Deleting...' : 'Delete Task'}
                 </Button>
               </Dialog.Footer>
             </Dialog.Content>
