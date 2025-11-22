@@ -109,9 +109,11 @@ export function useTasks(options: UseTasksOptions = {}): UseTasksReturn {
     const abortController = new AbortController()
     abortControllerRef.current = abortController
 
+    // Set loading state before fetch
+    setLoading(true)
+    setError(null)
+
     // Perform the async fetch
-    // Note: We don't set loading here to avoid synchronous setState in effect
-    // Loading is already true on mount, and subsequent changes are handled in callbacks
     performFetch(abortController.signal).then((result) => {
       // Only update state if component is still mounted
       if (!isMountedRef.current) return
@@ -124,8 +126,10 @@ export function useTasks(options: UseTasksOptions = {}): UseTasksReturn {
       } else if ('error' in result) {
         setError(result.error)
         setLoading(false)
+      } else {
+        // If aborted, reset loading state
+        setLoading(false)
       }
-      // If success is false without error, it was aborted - do nothing
     })
 
     // Cleanup: abort pending requests on unmount or when effect re-runs
@@ -177,7 +181,11 @@ export function useTasks(options: UseTasksOptions = {}): UseTasksReturn {
 
         const controller = new AbortController()
         
-        // Perform fetch and update state in callback (not synchronously)
+        // Set loading state before reverting
+        setLoading(true)
+        setError(null)
+        
+        // Perform fetch and update state in callback
         performFetch(controller.signal).then((result) => {
           if (!isMountedRef.current) return
           
@@ -188,6 +196,8 @@ export function useTasks(options: UseTasksOptions = {}): UseTasksReturn {
             setError(null)
           } else if ('error' in result) {
             setError(result.error)
+            setLoading(false)
+          } else {
             setLoading(false)
           }
         })
@@ -208,6 +218,10 @@ export function useTasks(options: UseTasksOptions = {}): UseTasksReturn {
     const controller = new AbortController()
     abortControllerRef.current = controller
     
+    // Set loading state before fetch
+    setLoading(true)
+    setError(null)
+    
     // Perform fetch and handle loading state in callback
     performFetch(controller.signal).then((result) => {
       if (!isMountedRef.current) return
@@ -219,6 +233,8 @@ export function useTasks(options: UseTasksOptions = {}): UseTasksReturn {
         setError(null)
       } else if ('error' in result) {
         setError(result.error)
+        setLoading(false)
+      } else {
         setLoading(false)
       }
     })
