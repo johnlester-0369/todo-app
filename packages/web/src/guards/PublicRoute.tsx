@@ -1,6 +1,7 @@
 import React from 'react'
 import { Navigate, useLocation, Outlet } from 'react-router-dom'
 import { useUserAuth } from '@/contexts/UserAuthContext'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 /**
  * PublicRoute guard component
@@ -15,14 +16,7 @@ const PublicRoute: React.FC = () => {
 
   // Show loading state while checking authentication
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-bg">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-text">Loading...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner />
   }
 
   // If authenticated, redirect to tasks page
