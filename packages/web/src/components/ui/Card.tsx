@@ -5,7 +5,7 @@ import { cn } from '@/utils/cn.util'
 // Types
 // ============================================================================
 
-type CardVariant = 'default' | 'elevated' | 'bordered' | 'ghost'
+type CardVariant = 'default' | 'elevated' | 'bordered' | 'ghost' | 'unstyled'
 type CardPadding = 'none' | 'sm' | 'md' | 'lg'
 
 // ============================================================================
@@ -20,13 +20,14 @@ export interface CardRootProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantClasses: Record<CardVariant, string> = {
-  default: 'card', // Uses base .card class from globals.css
+  default: 'bg-surface-2 rounded-lg',
   elevated:
-    'bg-surface-2 border border-border rounded-lg shadow-soft hover:shadow-soft-lg transition-shadow',
+    'bg-surface-2 border border-border rounded-lg shadow-soft transition-shadow',
   bordered:
-    'bg-surface-1 border-2 border-border rounded-lg shadow-soft hover:border-primary/50 transition-colors',
+    'bg-surface-1 border-2 border-border rounded-lg shadow-soft transition-colors',
   ghost:
-    'bg-transparent border border-transparent rounded-lg hover:bg-surface-hover-1 transition-colors',
+    'bg-transparent border border-transparent rounded-lg transition-colors',
+  unstyled: '',
 }
 
 const paddingClasses: Record<CardPadding, string> = {
