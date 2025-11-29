@@ -148,7 +148,7 @@ class ApiClient {
       const contentType = response.headers.get('content-type')
 
       if (contentType && contentType.includes('application/json')) {
-        data = await response.json() as T
+        data = (await response.json()) as T
       } else {
         data = (await response.text()) as T
       }
@@ -215,7 +215,9 @@ class ApiClient {
 
     // Create error with response data
     const errorData = data as { message?: string }
-    const error: ApiError = new Error(errorData?.message || `HTTP Error ${status}`)
+    const error: ApiError = new Error(
+      errorData?.message || `HTTP Error ${status}`,
+    )
     error.response = {
       status,
       data,
