@@ -1,0 +1,40 @@
+/* Import Theme Variables */
+@import './theme/light.css';
+@import './theme/dark.css';
+
+/* Tailwind Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -----------------------------------------------------------
+   Base Layer: Typography and Base Colors
+   ----------------------------------------------------------- */
+@layer base {
+  :root {
+    /* Typography scale matching web */
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+      Arial, sans-serif;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* -----------------------------------------------------------
+   Utilities Layer: Custom Utility Classes
+   ----------------------------------------------------------- */
+@layer utilities {
+  .text-body {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+    letter-spacing: 0.16px;
+  }
+
+  .text-headline {
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+}

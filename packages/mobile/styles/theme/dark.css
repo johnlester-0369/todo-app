@@ -1,0 +1,37 @@
+/**
+ * Dark Theme Variables
+ * Matches web/src/styles/theme/dark.css
+ * Blue-tinted dark theme with proper contrast hierarchy
+ * 
+ * CRITICAL: NativeWind v4 uses media queries for system theme support
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark theme - Generated with perceptually uniform OKLCH */
+    /* Core colors (RGB triplets for Tailwind opacity support) */
+    --color-primary: 185 216 255;
+    --color-on-primary: 0 10 20;
+
+    /* Background hierarchy (tinted with primary hue) */
+    --color-bg: 10 11 13;
+    --color-surface-1: 25 27 29;
+    --color-surface-2: 39 41 44;
+    --color-surface-hover-1: 49 51 54;
+    --color-surface-hover-2: 64 66 70;
+
+    /* Text colors (perceptually consistent) */
+    --color-text: 213 215 219;
+    --color-headline: 237 238 241;
+    --color-muted: 140 143 149;
+
+    /* UI elements */
+    --color-border: 56 59 63;
+    --color-divider: 21 22 24;
+
+    /* Feedback colors (semantic) */
+    --color-success: 16 220 120;
+    --color-warning: 255 180 30;
+    --color-error: 255 70 90;
+    --color-info: 185 216 255;
+  }
+}

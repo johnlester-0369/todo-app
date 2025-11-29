@@ -1,0 +1,37 @@
+/**
+ * Light Theme Variables
+ * Matches web/src/styles/theme/light.css
+ * Blue-tinted light theme with clear visual hierarchy
+ * 
+ * CRITICAL: NativeWind v4 uses media queries for system theme support
+ */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Light theme - Generated with perceptually uniform OKLCH */
+    /* Core colors (RGB triplets for Tailwind opacity support) */
+    --color-primary: 67 132 255;
+    --color-on-primary: 255 255 255;
+
+    /* Background hierarchy (tinted with primary hue) */
+    --color-bg: 241 242 244;
+    --color-surface-1: 244 245 247;
+    --color-surface-2: 255 255 255;
+    --color-surface-hover-1: 230 232 235;
+    --color-surface-hover-2: 237 238 241;
+
+    /* Text colors (perceptually consistent) */
+    --color-text: 43 46 50;
+    --color-headline: 20 22 26;
+    --color-muted: 111 114 119;
+
+    /* UI elements */
+    --color-border: 171 174 180;
+    --color-divider: 227 228 231;
+
+    /* Feedback colors (semantic) */
+    --color-success: 16 175 95;
+    --color-warning: 230 145 0;
+    --color-error: 215 50 60;
+    --color-info: 67 132 255;
+  }
+}
