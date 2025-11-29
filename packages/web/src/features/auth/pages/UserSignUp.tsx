@@ -5,6 +5,7 @@ import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import Alert from '@/components/ui/Alert'
+import PageHead from '@/components/common/PageHead'
 import { BrandLogo, BrandName } from '@/components/common/Brand'
 import { Mail, Lock, User, UserPlus, Eye, EyeOff } from 'lucide-react'
 import {
@@ -198,165 +199,171 @@ const UserSignUp: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Brand Section */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <BrandLogo size="lg" />
-          <BrandName />
-        </div>
-
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-headline mb-2">
-            Create Account
-          </h1>
-          <p className="text-text">Sign up to get started</p>
-        </div>
-
-        <Card.Root variant="unstyled">
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="space-y-6">
-              {signUpError && (
-                <Alert
-                  variant="error"
-                  title="Sign Up Failed"
-                  message={signUpError}
-                  onClose={() => setSignUpError('')}
-                />
-              )}
-
-              <div className="grid gap-1">
-                <Input
-                  type="text"
-                  name="name"
-                  label="Full Name"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  onBlur={(e) => validateName(e.target.value)}
-                  error={errors.name}
-                  leftIcon={<User className="h-5 w-5" />}
-                  disabled={isLoading}
-                  autoComplete="name"
-                  required
-                />
-              </div>
-
-              <div className="grid gap-1">
-                <Input
-                  type="email"
-                  name="email"
-                  label="Email Address"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  onBlur={(e) => validateEmail(e.target.value)}
-                  error={errors.email}
-                  leftIcon={<Mail className="h-5 w-5" />}
-                  disabled={isLoading}
-                  autoComplete="email"
-                  required
-                />
-              </div>
-
-              <div className="grid gap-1">
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  label="Password"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  onBlur={(e) => validatePasswordField(e.target.value)}
-                  error={errors.password}
-                  leftIcon={<Lock className="h-5 w-5" />}
-                  rightIcon={
-                    showPassword ? (
-                      <EyeOff
-                        className="h-5 w-5 cursor-pointer"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => !isLoading && setShowPassword(false)}
-                      />
-                    ) : (
-                      <Eye
-                        className="h-5 w-5 cursor-pointer"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => !isLoading && setShowPassword(true)}
-                      />
-                    )
-                  }
-                  disabled={isLoading}
-                  autoComplete="new-password"
-                  required
-                />
-              </div>
-
-              <div className="grid gap-1">
-                <Input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  onBlur={(e) => validateConfirmPassword(e.target.value)}
-                  error={errors.confirmPassword}
-                  leftIcon={<Lock className="h-5 w-5" />}
-                  rightIcon={
-                    showConfirmPassword ? (
-                      <EyeOff
-                        className="h-5 w-5 cursor-pointer"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() =>
-                          !isLoading && setShowConfirmPassword(false)
-                        }
-                      />
-                    ) : (
-                      <Eye
-                        className="h-5 w-5 cursor-pointer"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() =>
-                          !isLoading && setShowConfirmPassword(true)
-                        }
-                      />
-                    )
-                  }
-                  disabled={isLoading}
-                  autoComplete="new-password"
-                  required
-                />
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                isLoading={isLoading}
-                leftIcon={
-                  !isLoading ? <UserPlus className="h-5 w-5" /> : undefined
-                }
-                className="w-full"
-              >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
-              </Button>
-            </div>
-          </form>
-
-          <div className="mt-6 pt-6 border-t border-divider text-center">
-            <p className="text-sm text-text">
-              Already have an account?{' '}
-              <a
-                href="/login"
-                className="text-primary hover:text-primary/80 font-medium transition-colors"
-              >
-                Sign in here
-              </a>
-            </p>
+    <>
+      <PageHead
+        title="Create Account"
+        description="Create your TaskFlow account to start managing your tasks and boost your productivity."
+      />
+      <div className="min-h-screen bg-bg flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          {/* Brand Section */}
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <BrandLogo size="lg" />
+            <BrandName />
           </div>
-        </Card.Root>
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-headline mb-2">
+              Create Account
+            </h1>
+            <p className="text-text">Sign up to get started</p>
+          </div>
+
+          <Card.Root variant="unstyled">
+            <form onSubmit={handleSubmit} noValidate>
+              <div className="space-y-6">
+                {signUpError && (
+                  <Alert
+                    variant="error"
+                    title="Sign Up Failed"
+                    message={signUpError}
+                    onClose={() => setSignUpError('')}
+                  />
+                )}
+
+                <div className="grid gap-1">
+                  <Input
+                    type="text"
+                    name="name"
+                    label="Full Name"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    onBlur={(e) => validateName(e.target.value)}
+                    error={errors.name}
+                    leftIcon={<User className="h-5 w-5" />}
+                    disabled={isLoading}
+                    autoComplete="name"
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-1">
+                  <Input
+                    type="email"
+                    name="email"
+                    label="Email Address"
+                    placeholder="you@example.com"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    onBlur={(e) => validateEmail(e.target.value)}
+                    error={errors.email}
+                    leftIcon={<Mail className="h-5 w-5" />}
+                    disabled={isLoading}
+                    autoComplete="email"
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-1">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    label="Password"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    onBlur={(e) => validatePasswordField(e.target.value)}
+                    error={errors.password}
+                    leftIcon={<Lock className="h-5 w-5" />}
+                    rightIcon={
+                      showPassword ? (
+                        <EyeOff
+                          className="h-5 w-5 cursor-pointer"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => !isLoading && setShowPassword(false)}
+                        />
+                      ) : (
+                        <Eye
+                          className="h-5 w-5 cursor-pointer"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => !isLoading && setShowPassword(true)}
+                        />
+                      )
+                    }
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-1">
+                  <Input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    label="Confirm Password"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    onBlur={(e) => validateConfirmPassword(e.target.value)}
+                    error={errors.confirmPassword}
+                    leftIcon={<Lock className="h-5 w-5" />}
+                    rightIcon={
+                      showConfirmPassword ? (
+                        <EyeOff
+                          className="h-5 w-5 cursor-pointer"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() =>
+                            !isLoading && setShowConfirmPassword(false)
+                          }
+                        />
+                      ) : (
+                        <Eye
+                          className="h-5 w-5 cursor-pointer"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() =>
+                            !isLoading && setShowConfirmPassword(true)
+                          }
+                        />
+                      )
+                    }
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                    required
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  isLoading={isLoading}
+                  leftIcon={
+                    !isLoading ? <UserPlus className="h-5 w-5" /> : undefined
+                  }
+                  className="w-full"
+                >
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                </Button>
+              </div>
+            </form>
+
+            <div className="mt-6 pt-6 border-t border-divider text-center">
+              <p className="text-sm text-text">
+                Already have an account?{' '}
+                <a
+                  href="/login"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  Sign in here
+                </a>
+              </p>
+            </div>
+          </Card.Root>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

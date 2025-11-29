@@ -5,6 +5,7 @@ import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import Alert from '@/components/ui/Alert'
+import PageHead from '@/components/common/PageHead'
 import { BrandLogo, BrandName } from '@/components/common/Brand'
 import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react'
 import { isValidEmail, isEmpty } from '@/utils/validation.util'
@@ -106,135 +107,141 @@ const UserLogin: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Brand Section */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <BrandLogo size="lg" />
-          <BrandName />
-        </div>
+    <>
+      <PageHead
+        title="Sign In"
+        description="Sign in to your TaskFlow account to manage your tasks and stay organized."
+      />
+      <div className="min-h-screen bg-bg flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          {/* Brand Section */}
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <BrandLogo size="lg" />
+            <BrandName />
+          </div>
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-headline mb-2">
-            Welcome Back
-          </h1>
-          <p className="text-text">Sign in to your account to continue</p>
-        </div>
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-headline mb-2">
+              Welcome Back
+            </h1>
+            <p className="text-text">Sign in to your account to continue</p>
+          </div>
 
-        <Card.Root variant="unstyled">
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="space-y-6">
-              {loginError && (
-                <Alert
-                  variant="error"
-                  title="Login Failed"
-                  message={loginError}
-                  onClose={() => setLoginError('')}
-                />
-              )}
-
-              <div className="grid gap-1">
-                <Input
-                  type="email"
-                  name="email"
-                  label="Email Address"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value)
-                    if (emailError) validateEmail(e.target.value)
-                  }}
-                  onBlur={(e) => validateEmail(e.target.value)}
-                  error={emailError}
-                  leftIcon={<Mail className="h-5 w-5" />}
-                  disabled={loading}
-                  autoComplete="email"
-                  required
-                />
-              </div>
-
-              <div className="grid gap-1">
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  label="Password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value)
-                    if (passwordError) validatePasswordField(e.target.value)
-                  }}
-                  onBlur={(e) => validatePasswordField(e.target.value)}
-                  error={passwordError}
-                  leftIcon={<Lock className="h-5 w-5" />}
-                  rightIcon={
-                    showPassword ? (
-                      <EyeOff
-                        className="h-5 w-5 cursor-pointer"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => !loading && setShowPassword(false)}
-                      />
-                    ) : (
-                      <Eye
-                        className="h-5 w-5 cursor-pointer"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => !loading && setShowPassword(true)}
-                      />
-                    )
-                  }
-                  disabled={loading}
-                  autoComplete="current-password"
-                  required
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    disabled={loading}
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-surface-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition-colors"
+          <Card.Root variant="unstyled">
+            <form onSubmit={handleSubmit} noValidate>
+              <div className="space-y-6">
+                {loginError && (
+                  <Alert
+                    variant="error"
+                    title="Login Failed"
+                    message={loginError}
+                    onClose={() => setLoginError('')}
                   />
-                  <span className="text-text">Remember me</span>
-                </label>
+                )}
+
+                <div className="grid gap-1">
+                  <Input
+                    type="email"
+                    name="email"
+                    label="Email Address"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value)
+                      if (emailError) validateEmail(e.target.value)
+                    }}
+                    onBlur={(e) => validateEmail(e.target.value)}
+                    error={emailError}
+                    leftIcon={<Mail className="h-5 w-5" />}
+                    disabled={loading}
+                    autoComplete="email"
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-1">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    label="Password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value)
+                      if (passwordError) validatePasswordField(e.target.value)
+                    }}
+                    onBlur={(e) => validatePasswordField(e.target.value)}
+                    error={passwordError}
+                    leftIcon={<Lock className="h-5 w-5" />}
+                    rightIcon={
+                      showPassword ? (
+                        <EyeOff
+                          className="h-5 w-5 cursor-pointer"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => !loading && setShowPassword(false)}
+                        />
+                      ) : (
+                        <Eye
+                          className="h-5 w-5 cursor-pointer"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => !loading && setShowPassword(true)}
+                        />
+                      )
+                    }
+                    disabled={loading}
+                    autoComplete="current-password"
+                    required
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      disabled={loading}
+                      className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-surface-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition-colors"
+                    />
+                    <span className="text-text">Remember me</span>
+                  </label>
+                  <a
+                    href="/forgot-password"
+                    className="text-primary hover:text-primary/80 font-medium transition-colors"
+                  >
+                    Forgot password?
+                  </a>
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  isLoading={loading}
+                  leftIcon={!loading ? <LogIn className="h-5 w-5" /> : undefined}
+                  className="w-full"
+                >
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </Button>
+              </div>
+            </form>
+
+            <div className="mt-6 pt-6 border-t border-divider text-center">
+              <p className="text-sm text-text">
+                Don't have an account?{' '}
                 <a
-                  href="/forgot-password"
+                  href="/signup"
                   className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
-                  Forgot password?
+                  Create one now
                 </a>
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                isLoading={loading}
-                leftIcon={!loading ? <LogIn className="h-5 w-5" /> : undefined}
-                className="w-full"
-              >
-                {loading ? 'Signing in...' : 'Sign In'}
-              </Button>
+              </p>
             </div>
-          </form>
-
-          <div className="mt-6 pt-6 border-t border-divider text-center">
-            <p className="text-sm text-text">
-              Don't have an account?{' '}
-              <a
-                href="/signup"
-                className="text-primary hover:text-primary/80 font-medium transition-colors"
-              >
-                Create one now
-              </a>
-            </p>
-          </div>
-        </Card.Root>
+          </Card.Root>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

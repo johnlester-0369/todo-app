@@ -6,6 +6,7 @@ import Dialog from '@/components/ui/Dialog'
 import IconButton from '@/components/ui/IconButton'
 import Alert from '@/components/ui/Alert'
 import Tabs from '@/components/ui/Tabs'
+import PageHead from '@/components/common/PageHead'
 import {
   Plus,
   Pencil,
@@ -349,263 +350,269 @@ const Tasks: React.FC = () => {
   // ============================================================================
 
   return (
-    <div className="min-h-screen bg-bg px-4 py-8 md:px-8 lg:px-12 xl:px-32">
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-headline">My Tasks</h1>
-            <p className="text-text mt-1">
-              Manage your daily tasks and stay organized
-            </p>
+    <>
+      <PageHead
+        title="My Tasks"
+        description="Manage your daily tasks and stay organized with TaskFlow's intuitive task management interface."
+      />
+      <div className="min-h-screen bg-bg px-4 py-8 md:px-8 lg:px-12 xl:px-32">
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* Header Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-headline">My Tasks</h1>
+              <p className="text-text mt-1">
+                Manage your daily tasks and stay organized
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              leftIcon={<Plus className="h-4 w-4" />}
+              onClick={openAddDialog}
+            >
+              Add Task
+            </Button>
           </div>
-          <Button
-            variant="primary"
-            leftIcon={<Plus className="h-4 w-4" />}
-            onClick={openAddDialog}
+
+          {/* Success Message */}
+          {successMessage && (
+            <Alert
+              variant="success"
+              title={successMessage}
+              onClose={() => setSuccessMessage('')}
+            />
+          )}
+
+          {/* Error Message */}
+          {errorMessage && (
+            <Alert
+              variant="error"
+              title={errorMessage}
+              onClose={() => setErrorMessage('')}
+            />
+          )}
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Total Tasks Card */}
+            <Card.Root padding="md" variant="elevated">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold text-headline">
+                    {stats.total}
+                  </p>
+                  <p className="text-sm text-muted mt-1">Total Tasks</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <ListTodo className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+              </div>
+            </Card.Root>
+
+            {/* Active Tasks Card */}
+            <Card.Root padding="md" variant="elevated">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold text-primary">
+                    {stats.active}
+                  </p>
+                  <p className="text-sm text-muted mt-1">Active Tasks</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="p-3 bg-warning/10 rounded-lg">
+                    <Clock className="h-6 w-6 text-warning" />
+                  </div>
+                </div>
+              </div>
+            </Card.Root>
+
+            {/* Completed Tasks Card */}
+            <Card.Root padding="md" variant="elevated">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold text-success">
+                    {stats.completed}
+                  </p>
+                  <p className="text-sm text-muted mt-1">Completed</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="p-3 bg-success/10 rounded-lg">
+                    <CheckCircle2 className="h-6 w-6 text-success" />
+                  </div>
+                </div>
+              </div>
+            </Card.Root>
+          </div>
+
+          {/* Tabs for Task Filtering */}
+          <Tabs.Root value={filter} onChange={handleTabChange}>
+            <Tabs.List variant="line">
+              <Tabs.Tab value="all">All Tasks</Tabs.Tab>
+              <Tabs.Tab value="active">Active</Tabs.Tab>
+              <Tabs.Tab value="completed">Completed</Tabs.Tab>
+            </Tabs.List>
+
+            <Tabs.Panels>
+              <Tabs.Panel value="all">{renderTaskList(tasks)}</Tabs.Panel>
+
+              <Tabs.Panel value="active">{renderTaskList(tasks)}</Tabs.Panel>
+
+              <Tabs.Panel value="completed">{renderTaskList(tasks)}</Tabs.Panel>
+            </Tabs.Panels>
+          </Tabs.Root>
+
+          {/* Add Task Dialog */}
+          <Dialog.Root open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog.Positioner>
+              <Dialog.Backdrop />
+              <Dialog.Content size="md">
+                <Dialog.Header>
+                  <Dialog.Title>Create New Task</Dialog.Title>
+                  <Dialog.CloseTrigger />
+                </Dialog.Header>
+                <Dialog.Body>
+                  <div className="space-y-4">
+                    <Input
+                      label="Task Title"
+                      name="title"
+                      placeholder="Enter task title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      error={formErrors.title}
+                      autoFocus
+                    />
+                    <Input
+                      label="Description"
+                      name="description"
+                      placeholder="Enter task description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      error={formErrors.description}
+                    />
+                  </div>
+                </Dialog.Body>
+                <Dialog.Footer>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setIsAddDialogOpen(false)
+                      resetForm()
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={handleAddTask}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Creating...' : 'Create Task'}
+                  </Button>
+                </Dialog.Footer>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Dialog.Root>
+
+          {/* Edit Task Dialog */}
+          <Dialog.Root open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <Dialog.Positioner>
+              <Dialog.Backdrop />
+              <Dialog.Content size="md">
+                <Dialog.Header>
+                  <Dialog.Title>Edit Task</Dialog.Title>
+                  <Dialog.CloseTrigger />
+                </Dialog.Header>
+                <Dialog.Body>
+                  <div className="space-y-4">
+                    <Input
+                      label="Task Title"
+                      name="title"
+                      placeholder="Enter task title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      error={formErrors.title}
+                      autoFocus
+                    />
+                    <Input
+                      label="Description"
+                      name="description"
+                      placeholder="Enter task description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      error={formErrors.description}
+                    />
+                  </div>
+                </Dialog.Body>
+                <Dialog.Footer>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setIsEditDialogOpen(false)
+                      setSelectedTask(null)
+                      resetForm()
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={handleEditTask}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </Dialog.Footer>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Dialog.Root>
+
+          {/* Delete Confirmation Dialog */}
+          <Dialog.Root
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
           >
-            Add Task
-          </Button>
+            <Dialog.Positioner>
+              <Dialog.Backdrop />
+              <Dialog.Content size="sm">
+                <Dialog.Header>
+                  <Dialog.Title>Delete Task</Dialog.Title>
+                  <Dialog.CloseTrigger />
+                </Dialog.Header>
+                <Dialog.Body>
+                  <p className="text-text">
+                    Are you sure you want to delete "{selectedTask?.title}"? This
+                    action cannot be undone.
+                  </p>
+                </Dialog.Body>
+                <Dialog.Footer>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setIsDeleteDialogOpen(false)
+                      setSelectedTask(null)
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={handleDeleteTask}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Deleting...' : 'Delete Task'}
+                  </Button>
+                </Dialog.Footer>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Dialog.Root>
         </div>
-
-        {/* Success Message */}
-        {successMessage && (
-          <Alert
-            variant="success"
-            title={successMessage}
-            onClose={() => setSuccessMessage('')}
-          />
-        )}
-
-        {/* Error Message */}
-        {errorMessage && (
-          <Alert
-            variant="error"
-            title={errorMessage}
-            onClose={() => setErrorMessage('')}
-          />
-        )}
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Total Tasks Card */}
-          <Card.Root padding="md" variant="elevated">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-headline">
-                  {stats.total}
-                </p>
-                <p className="text-sm text-muted mt-1">Total Tasks</p>
-              </div>
-              <div className="flex-shrink-0">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <ListTodo className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-            </div>
-          </Card.Root>
-
-          {/* Active Tasks Card */}
-          <Card.Root padding="md" variant="elevated">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-primary">
-                  {stats.active}
-                </p>
-                <p className="text-sm text-muted mt-1">Active Tasks</p>
-              </div>
-              <div className="flex-shrink-0">
-                <div className="p-3 bg-warning/10 rounded-lg">
-                  <Clock className="h-6 w-6 text-warning" />
-                </div>
-              </div>
-            </div>
-          </Card.Root>
-
-          {/* Completed Tasks Card */}
-          <Card.Root padding="md" variant="elevated">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-success">
-                  {stats.completed}
-                </p>
-                <p className="text-sm text-muted mt-1">Completed</p>
-              </div>
-              <div className="flex-shrink-0">
-                <div className="p-3 bg-success/10 rounded-lg">
-                  <CheckCircle2 className="h-6 w-6 text-success" />
-                </div>
-              </div>
-            </div>
-          </Card.Root>
-        </div>
-
-        {/* Tabs for Task Filtering */}
-        <Tabs.Root value={filter} onChange={handleTabChange}>
-          <Tabs.List variant="line">
-            <Tabs.Tab value="all">All Tasks</Tabs.Tab>
-            <Tabs.Tab value="active">Active</Tabs.Tab>
-            <Tabs.Tab value="completed">Completed</Tabs.Tab>
-          </Tabs.List>
-
-          <Tabs.Panels>
-            <Tabs.Panel value="all">{renderTaskList(tasks)}</Tabs.Panel>
-
-            <Tabs.Panel value="active">{renderTaskList(tasks)}</Tabs.Panel>
-
-            <Tabs.Panel value="completed">{renderTaskList(tasks)}</Tabs.Panel>
-          </Tabs.Panels>
-        </Tabs.Root>
-
-        {/* Add Task Dialog */}
-        <Dialog.Root open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <Dialog.Positioner>
-            <Dialog.Backdrop />
-            <Dialog.Content size="md">
-              <Dialog.Header>
-                <Dialog.Title>Create New Task</Dialog.Title>
-                <Dialog.CloseTrigger />
-              </Dialog.Header>
-              <Dialog.Body>
-                <div className="space-y-4">
-                  <Input
-                    label="Task Title"
-                    name="title"
-                    placeholder="Enter task title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    error={formErrors.title}
-                    autoFocus
-                  />
-                  <Input
-                    label="Description"
-                    name="description"
-                    placeholder="Enter task description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    error={formErrors.description}
-                  />
-                </div>
-              </Dialog.Body>
-              <Dialog.Footer>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setIsAddDialogOpen(false)
-                    resetForm()
-                  }}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleAddTask}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Creating...' : 'Create Task'}
-                </Button>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Dialog.Root>
-
-        {/* Edit Task Dialog */}
-        <Dialog.Root open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <Dialog.Positioner>
-            <Dialog.Backdrop />
-            <Dialog.Content size="md">
-              <Dialog.Header>
-                <Dialog.Title>Edit Task</Dialog.Title>
-                <Dialog.CloseTrigger />
-              </Dialog.Header>
-              <Dialog.Body>
-                <div className="space-y-4">
-                  <Input
-                    label="Task Title"
-                    name="title"
-                    placeholder="Enter task title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    error={formErrors.title}
-                    autoFocus
-                  />
-                  <Input
-                    label="Description"
-                    name="description"
-                    placeholder="Enter task description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    error={formErrors.description}
-                  />
-                </div>
-              </Dialog.Body>
-              <Dialog.Footer>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setIsEditDialogOpen(false)
-                    setSelectedTask(null)
-                    resetForm()
-                  }}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleEditTask}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Dialog.Root>
-
-        {/* Delete Confirmation Dialog */}
-        <Dialog.Root
-          open={isDeleteDialogOpen}
-          onOpenChange={setIsDeleteDialogOpen}
-        >
-          <Dialog.Positioner>
-            <Dialog.Backdrop />
-            <Dialog.Content size="sm">
-              <Dialog.Header>
-                <Dialog.Title>Delete Task</Dialog.Title>
-                <Dialog.CloseTrigger />
-              </Dialog.Header>
-              <Dialog.Body>
-                <p className="text-text">
-                  Are you sure you want to delete "{selectedTask?.title}"? This
-                  action cannot be undone.
-                </p>
-              </Dialog.Body>
-              <Dialog.Footer>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setIsDeleteDialogOpen(false)
-                    setSelectedTask(null)
-                  }}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={handleDeleteTask}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Deleting...' : 'Delete Task'}
-                </Button>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Dialog.Root>
       </div>
-    </div>
+    </>
   )
 }
 
