@@ -39,7 +39,7 @@ interface UseTaskMutationsReturn {
 
 /**
  * Custom hook to handle task mutations (create, update, delete)
- * 
+ *
  * @example
  * ```tsx
  * const { createTask, updateTask, deleteTask, isSubmitting } = useTaskMutations({
@@ -103,8 +103,8 @@ export function useTaskMutations(
       } catch (err: unknown) {
         console.error('Error creating task:', err)
         const errorMessage =
-          (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
-          'Failed to create task. Please try again.'
+          (err as { response?: { data?: { error?: string } } })?.response?.data
+            ?.error || 'Failed to create task. Please try again.'
         onError?.(errorMessage)
         return null
       } finally {
@@ -159,8 +159,12 @@ export function useTaskMutations(
       try {
         const updatedTask = await taskService.updateTask(id, {
           ...input,
-          title: input.title !== undefined ? sanitizeString(input.title) : undefined,
-          description: input.description !== undefined ? sanitizeString(input.description) : undefined,
+          title:
+            input.title !== undefined ? sanitizeString(input.title) : undefined,
+          description:
+            input.description !== undefined
+              ? sanitizeString(input.description)
+              : undefined,
         })
 
         onSuccess?.('Task updated successfully', updatedTask)
@@ -168,8 +172,8 @@ export function useTaskMutations(
       } catch (err: unknown) {
         console.error('Error updating task:', err)
         const errorMessage =
-          (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
-          'Failed to update task. Please try again.'
+          (err as { response?: { data?: { error?: string } } })?.response?.data
+            ?.error || 'Failed to update task. Please try again.'
         onError?.(errorMessage)
         return null
       } finally {
@@ -192,8 +196,8 @@ export function useTaskMutations(
       } catch (err: unknown) {
         console.error('Error deleting task:', err)
         const errorMessage =
-          (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
-          'Failed to delete task. Please try again.'
+          (err as { response?: { data?: { error?: string } } })?.response?.data
+            ?.error || 'Failed to delete task. Please try again.'
         onError?.(errorMessage)
         return false
       } finally {

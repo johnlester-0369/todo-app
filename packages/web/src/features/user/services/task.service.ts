@@ -55,12 +55,15 @@ class TaskService {
   /**
    * Get all tasks with optional filters
    */
-  async getTasks(params?: GetTasksParams, signal?: AbortSignal): Promise<Task[]> {
+  async getTasks(
+    params?: GetTasksParams,
+    signal?: AbortSignal,
+  ): Promise<Task[]> {
     try {
-      const response = await apiClient.get<{ tasks: Task[] }>(
-        this.baseUrl,
-        { params, signal }
-      )
+      const response = await apiClient.get<{ tasks: Task[] }>(this.baseUrl, {
+        params,
+        signal,
+      })
       return response.data.tasks
     } catch (error) {
       console.error('Failed to fetch tasks:', error)
@@ -73,10 +76,9 @@ class TaskService {
    */
   async getTaskById(id: string, signal?: AbortSignal): Promise<Task> {
     try {
-      const response = await apiClient.get<Task>(
-        `${this.baseUrl}/${id}`,
-        { signal }
-      )
+      const response = await apiClient.get<Task>(`${this.baseUrl}/${id}`, {
+        signal,
+      })
       return response.data
     } catch (error) {
       console.error('Failed to fetch task:', error)
@@ -102,10 +104,7 @@ class TaskService {
    */
   async updateTask(id: string, data: UpdateTaskData): Promise<Task> {
     try {
-      const response = await apiClient.put<Task>(
-        `${this.baseUrl}/${id}`,
-        data
-      )
+      const response = await apiClient.put<Task>(`${this.baseUrl}/${id}`, data)
       return response.data
     } catch (error) {
       console.error('Failed to update task:', error)
@@ -130,10 +129,9 @@ class TaskService {
    */
   async getTaskStats(signal?: AbortSignal): Promise<TaskStats> {
     try {
-      const response = await apiClient.get<TaskStats>(
-        `${this.baseUrl}/stats`,
-        { signal }
-      )
+      const response = await apiClient.get<TaskStats>(`${this.baseUrl}/stats`, {
+        signal,
+      })
       return response.data
     } catch (error) {
       console.error('Failed to fetch task stats:', error)

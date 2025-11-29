@@ -60,17 +60,19 @@ const Tasks: React.FC = () => {
     status: filter,
   })
 
-  const { createTask, updateTask, deleteTask, isSubmitting } = useTaskMutations({
-    onSuccess: (message) => {
-      setSuccessMessage(message)
-      setTimeout(() => setSuccessMessage(''), 3000)
-      refetch()
+  const { createTask, updateTask, deleteTask, isSubmitting } = useTaskMutations(
+    {
+      onSuccess: (message) => {
+        setSuccessMessage(message)
+        setTimeout(() => setSuccessMessage(''), 3000)
+        refetch()
+      },
+      onError: (message) => {
+        setErrorMessage(message)
+        setTimeout(() => setErrorMessage(''), 5000)
+      },
     },
-    onError: (message) => {
-      setErrorMessage(message)
-      setTimeout(() => setErrorMessage(''), 5000)
-    },
-  })
+  )
 
   // ============================================================================
   // Validation
