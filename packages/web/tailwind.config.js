@@ -15,7 +15,7 @@ export default {
         'surface-hover-1': 'rgb(var(--color-surface-hover-1) / <alpha-value>)',
         'surface-hover-2': 'rgb(var(--color-surface-hover-2) / <alpha-value>)',
         /* text / headings */
-        text: 'rgb(var(--color-foreground) / <alpha-value>)',
+        text: 'rgb(var(--color-text) / <alpha-value>)',
         headline: 'rgb(var(--color-headline) / <alpha-value>)',
         /* UI elements */
         border: 'rgb(var(--color-border) / <alpha-value>)',
