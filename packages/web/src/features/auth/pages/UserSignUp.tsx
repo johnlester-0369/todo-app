@@ -214,7 +214,7 @@ const UserSignUp: React.FC = () => {
           <p className="text-text">Sign up to get started</p>
         </div>
 
-        <Card.Root>
+        <Card.Root variant="unstyled">
           <form onSubmit={handleSubmit} noValidate>
             <div className="space-y-6">
               {signUpError && (

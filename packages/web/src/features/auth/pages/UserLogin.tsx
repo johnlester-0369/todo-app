@@ -122,7 +122,7 @@ const UserLogin: React.FC = () => {
           <p className="text-text">Sign in to your account to continue</p>
         </div>
 
-        <Card.Root>
+        <Card.Root variant="unstyled">
           <form onSubmit={handleSubmit} noValidate>
             <div className="space-y-6">
               {loginError && (
