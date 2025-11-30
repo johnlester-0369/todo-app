@@ -40,10 +40,12 @@ export interface UpdateTaskData {
 
 /**
  * Query parameters for fetching tasks
+ * Index signature added for Record<string, unknown> compatibility
  */
 export interface GetTasksParams {
   search?: string
   completed?: boolean
+  [key: string]: string | boolean | undefined
 }
 
 /**
