@@ -1,35 +1,35 @@
 {
   "expo": {
-    "name": "TodoApp",
-    "slug": "TodoApp",
+    "name": "TaskFlow",
+    "slug": "TaskFlow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "TodoApp",
+    "scheme": "taskflow",
     "userInterfaceStyle": "automatic",
-
     "ios": {
       "supportsTablet": true
     },
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.johnlester0369.taskflow"
     },
-
     "web": {
       "favicon": "./assets/images/favicon.png",
       "output": "static"
     },
-
     "extra": {
-      "BETTER_AUTH_BASE_URL": "http://10.180.183.118:3000"
+      "BETTER_AUTH_BASE_URL": "http://10.180.183.118:3000",
+      "router": {},
+      "eas": {
+        "projectId": "f1af9cc8-c51f-43dd-8b35-8845f975a478"
+      }
     },
-
     "plugins": [
       "expo-router",
       [
@@ -46,7 +46,6 @@
       ],
       "expo-secure-store"
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

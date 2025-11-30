@@ -25,7 +25,7 @@ const BrandLogo: React.FC<BrandLogoProps> = ({ size = 'lg' }) => {
 const BrandName: React.FC = () => {
   return (
     <span className="whitespace-nowrap font-bold text-xl text-headline">
-      TodoApp
+      TaskFlow
     </span>
   )
 }

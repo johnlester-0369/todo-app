@@ -51,7 +51,7 @@ const BrandLogo: React.FC<BrandLogoProps> = ({
 const BrandName: React.FC = () => {
   return (
     <Text className="whitespace-nowrap font-bold text-xl text-headline">
-      TodoApp
+      TaskFlow
     </Text>
   )
 }
