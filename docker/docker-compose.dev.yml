@@ -1,0 +1,153 @@
+# =============================================================================
+# TaskFlow - Development Docker Compose
+# =============================================================================
+# Includes local MongoDB for development without Atlas
+#
+# Usage:
+#   docker-compose -f docker-compose.dev.yml up -d --build
+#   docker-compose -f docker-compose.dev.yml logs -f
+#   docker-compose -f docker-compose.dev.yml down -v
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # MongoDB (Local Development)
+  # ---------------------------------------------------------------------------
+  mongodb:
+    image: mongo:7.0
+    container_name: taskflow-mongodb
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=taskflow
+      - MONGO_INITDB_ROOT_PASSWORD=taskflow_dev_password
+      - MONGO_INITDB_DATABASE=taskflow
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # API Server (Express.js)
+  # ---------------------------------------------------------------------------
+  server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.server
+    container_name: taskflow-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - BASE_URL=http://localhost:3000
+      # Local MongoDB connection
+      - MONGODB_URI=mongodb://taskflow:taskflow_dev_password@mongodb:27017/taskflow?authSource=admin
+      - MONGODB_DB_NAME=taskflow
+      # Auth secret (generate your own for production!)
+      - AUTH_SECRET_USER=dev-secret-change-in-production-minimum-32-chars
+      # CORS for local development
+      - CORS_ORIGINS=http://localhost,http://localhost:80,http://127.0.0.1
+      - TRUSTED_ORIGINS=http://localhost,http://localhost:80,http://127.0.0.1
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # Web Application (Vite + nginx)
+  # ---------------------------------------------------------------------------
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.web
+    container_name: taskflow-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # Mongo Express (Database Admin UI)
+  # ---------------------------------------------------------------------------
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: taskflow-mongo-express
+    restart: unless-stopped
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=taskflow
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=taskflow_dev_password
+      - ME_CONFIG_MONGODB_URL=mongodb://taskflow:taskflow_dev_password@mongodb:27017/
+      - ME_CONFIG_BASICAUTH=false
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  mongodb_data:
+    name: taskflow-mongodb-data
+  mongodb_config:
+    name: taskflow-mongodb-config
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  taskflow-network:
+    driver: bridge
+    name: taskflow-network
